@@ -1,11 +1,13 @@
 pipeline {
-    agent any 
+    agent {
+        label 'docker-node' // Use the label for your Docker agent
+    }
 
     options {
-        timeout(time: 5, unit: 'MINUTES')    // Pipeline will timeout after 5 minutes
-        retry(2)                            // Retry the pipeline twice if it fails
-        timestamps()                        // Add timestamps to console output
-        disableConcurrentBuilds()           // Prevent concurrent builds
+        timeout(time: 5, unit: 'MINUTES')
+        retry(2) // Retry the *entire pipeline* - not ideal for compilation errors
+        timestamps()
+        disableConcurrentBuilds()
     }
 
     stages {
@@ -13,7 +15,11 @@ pipeline {
             steps {
                 script {
                     bat 'echo Starting Hello World Pipeline'
-                    bat 'javac Hello.java' 
+                    bat 'javac Hello.java'
+                    // Check for compilation errors
+                    if (bat.execute() != 0) {
+                        error("Compilation failed!") // Or throw an exception to stop the pipeline
+                    }
                 }
             }
         }
