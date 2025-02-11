@@ -25,5 +25,15 @@ pipeline {
                 }
             }
         }
+        stage('Archive .class File') {
+            steps {
+                archiveArtifacts artifacts: '*.class', fingerprint: true
+            }
+        }
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
     }
 }
