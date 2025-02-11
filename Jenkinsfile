@@ -5,21 +5,31 @@ pipeline {
 
     options {
         timeout(time: 5, unit: 'MINUTES')
-        retry(2) // Retry the *entire pipeline* - not ideal for compilation errors
+        retry(2)
         timestamps()
         disableConcurrentBuilds()
     }
 
+    environment {
+        GIT_REPO = 'https://github.com/para8ox-deb/demoTask4.git'
+        BRANCH = 'main'  // Specify the branch to checkout
+    }
+
     stages {
+        stage('Checkout Code') {
+            steps {
+                script {
+                    echo 'Cloning the repository...'
+                    git branch: env.BRANCH, url: env.GIT_REPO
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
-                    bat 'echo Starting Hello World Pipeline'
+                    echo 'Building the Java application...'
                     bat 'javac Hello.java'
-                    // Check for compilation errors
-                    if (bat.execute() != 0) {
-                        error("Compilation failed!") // Or throw an exception to stop the pipeline
-                    }
                 }
             }
         }
@@ -27,6 +37,7 @@ pipeline {
         stage('Execute Script') {
             steps {
                 script {
+                    echo 'Executing the Hello Java program...'
                     bat 'java Hello'
                 }
             }
